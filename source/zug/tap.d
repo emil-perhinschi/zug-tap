@@ -1,6 +1,6 @@
 module zug.tap;
 
-// import zug.util;
+import zug.util;
 import std.stdio;
 import std.conv;
 import std.string;
