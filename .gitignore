@@ -1,1 +1,22 @@
-# Add any directories, files, or patterns you don't want to be tracked by version control
+# Compiled Object files
+*.o
+*.obj
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.a
+*.lib
+
+# DUB
+.dub
+docs.json
+__dummy.html
+
+# Code coverage
+*.lst
+
+
