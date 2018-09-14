@@ -7,25 +7,6 @@ import std.string;
 import std.algorithm;
 import std.process;
 
-// redirect stdout to file
-// https://www.tutorialspoint.com/c_standard_library/c_function_freopen.htm 
-// https://dlang.org/library/core/stdc/stdio.html
-
-// http://stackoverflow.com/questions/37760630/redirect-stdout-stderr-to-function-in-c
-
-// ***** good one I think ***** http://stackoverflow.com/questions/584868/rerouting-stdin-and-stdout-from-c
-
-// redirect stdout/stderr to file from within D
-// http://forum.dlang.org/post/cbmdojwoebqdirbapoev@forum.dlang.org
-
-// this looks interesting
-// https://dlang.org/library/std/stdio/file.html
-
-// my question on forum http://forum.dlang.org/post/cbhzvymjnribmbpccjrx@forum.dlang.org
-
-// the old std.stream
-// /home/emilper/.dub/packages/undead-1.0.6/undead/src/undead/stream.d
-
 enum TapDataType {
     test_result,
     diagnostic,
@@ -39,39 +20,49 @@ struct TapData {
     string message;
 }
 
-// TODO: look into Test Anything Protocol http://testanything.org/
+
 class Tap {
 
-    private bool verbose = true;
+    private bool print_each_result = true;
     private int planned_tests;
     private TapData[] results;
     private int tests_count = 0;
     private string cache = "";
     private bool debug_enabled = false;
-    this() {}
 
-    this(bool verbose, int plan) {
-        this.verbose = verbose;
-        this.planned_tests = plan;
+    this() {
         this.debug_enabled = std.process.environment.get("DEBUG") == "1" ? true : false;
     }
 
-    void done_testing() {
+    void verbose(bool verbose) { this.print_each_result = verbose; }
+    bool verbose()             { return this.print_each_result; }
+
+    void plan(int plan )       { this.planned_tests = plan; }
+    int plan()                 { return this.planned_tests ? this.planned_tests : 0; }
+
+    bool done_testing() {
         string[string] summary;
-        int tests_succeeded = 0;
+        int tests_passed = 0;
         int tests_failed = 0;
         foreach (TapData result; this.results) {
             if(result.data_type != TapDataType.test_result) {
                 continue;
             }
             
-            if(result.success) {
-                tests_succeeded++;
+            if (result.success) {
+                tests_passed++;
             }
             else {
                 tests_failed++;
             }
         }
+
+        if (this.debug_enabled) {
+            writeln(tests_passed, " tests passed; ", tests_failed, " tests failed");
+            writeln("Planned ", this.planned_tests,  "; completed ", this.tests_count);
+        }
+
+        return this.planned_tests == tests_passed;
     }
     
     void add_result(bool success, string message) {
@@ -99,6 +90,7 @@ class Tap {
         this.results ~= TapData(TapDataType.note, true, message);
     }
 
+
     void ok(bool delegate () test, string message) {
         try {
             bool result = test();
@@ -108,7 +100,6 @@ class Tap {
             this.add_result(false, message);
         }
     }
-
 
     void ok(bool is_true, string message ) {
         this.add_result(is_true, message);
@@ -130,7 +121,17 @@ class Tap {
     }
 }
 
-
+unittest {
+    auto tap = new Tap();
+    auto test_the_tap = new Tap();
+    tap.verbose(true);
+    tap.plan(10);
+    tap.ok(false, "should fail");
+    tap.ok(true, "should pass");
+    tap.ok(delegate bool () { return false; }, "should fail");
+    tap.ok(delegate bool () { return true; },  "should pass");
+    test_the_tap.ok(tap.done_testing(), "tap.done_testing should report errors");
+}
 
 
 
