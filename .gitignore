@@ -20,3 +20,6 @@ __dummy.html
 *.lst
 
 zug-tap-test-library
+
+# don't know what these are
+dub_platform_probe*
