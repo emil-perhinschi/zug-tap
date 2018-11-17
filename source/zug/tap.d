@@ -6,27 +6,29 @@ import std.string;
 import std.algorithm;
 import std.process;
 
-enum TapDataType {
+enum TapDataType
+{
     test_result,
     diagnostic,
     note
 };
 
 // need to keep the diagnostics, the notes, the results etc. in order
-struct TapData {
-    TapDataType data_type; 
+struct TapData
+{
+    TapDataType data_type;
     bool success;
     string message;
 }
 
-
-struct Tap {
+struct Tap
+{
     private int planned_tests;
     private TapData[] tests_data;
     private int tests_count = 0;
-    
+
     private string cache = ""; // cache debug output here ... probably
-    
+
     private bool debug_enabled = false;
     private bool print_messages = true;
 
@@ -34,97 +36,123 @@ struct Tap {
     private bool skipping = false;
     private int skipped_tests;
 
-    this(bool verbose) {
+    this(bool verbose)
+    {
         this.print_messages = verbose;
-        if (this.verbose()) {
-            this.debug_enabled = 
-                std.process.environment.get("DEBUG") == "1" ? true : false;
+        if (this.verbose())
+        {
+            this.debug_enabled = std.process.environment.get("DEBUG") == "1" ? true : false;
         }
     }
 
-    void verbose(bool verbose) { this.print_messages = verbose; }
-    bool verbose()             { return this.print_messages; }
+    void verbose(bool verbose)
+    {
+        this.print_messages = verbose;
+    }
 
-    void write(string[] message ... ) {
-        if (this.verbose()) {
+    bool verbose()
+    {
+        return this.print_messages;
+    }
+
+    void write(string[] message...)
+    {
+        if (this.verbose())
+        {
             writeln(message.join(" "));
         }
     }
 
-
-    void warn(string[] message ... ) {
-        if(this.debug_enabled) {
+    void warn(string[] message...)
+    {
+        if (this.debug_enabled)
+        {
             stderr.writeln(message.join(" "));
         }
     }
 
-    void plan(int plan ) { this.planned_tests = plan; }
-    int plan() { return this.planned_tests ? this.planned_tests : 0; }
+    void plan(int plan)
+    {
+        this.planned_tests = plan;
+    }
 
-    TapData[] results() { return this.tests_data; }
+    int plan()
+    {
+        return this.planned_tests ? this.planned_tests : 0;
+    }
 
-    void add_result(bool success, string message) {
+    TapData[] results()
+    {
+        return this.tests_data;
+    }
+
+    void add_result(bool success, string message)
+    {
         this.tests_count++;
-        this.write(
-            (success ? "ok" : "not ok"),
-            to!string(this.tests_count),
-            message
-        );
-        
+        this.write((success ? "ok" : "not ok"), to!string(this.tests_count), message);
+
         this.tests_data ~= TapData(TapDataType.test_result, success, message);
     }
 
-    bool done_testing() {
+    bool done_testing()
+    {
         string[string] summary;
         int tests_passed = 0;
         int tests_failed = 0;
-        foreach (TapData result; this.tests_data) {
-            if(result.data_type != TapDataType.test_result) {
+        foreach (TapData result; this.tests_data)
+        {
+            if (result.data_type != TapDataType.test_result)
+            {
                 continue;
             }
-            
-            if (result.success) {
+
+            if (result.success)
+            {
                 tests_passed++;
             }
-            else {
+            else
+            {
                 tests_failed++;
             }
         }
 
-        this.write(to!string(tests_passed), "tests passed;", 
-            to!string(tests_failed), "tests failed");
-        this.write("Planned:", to!string(this.planned_tests),
-            "; completed:", to!string(this.tests_count),
-            "; skipped:", to!string(this.skipped_tests)
-        );
+        this.write(to!string(tests_passed), "tests passed;",
+                to!string(tests_failed), "tests failed");
+        this.write("Planned:", to!string(this.planned_tests), "; completed:",
+                to!string(this.tests_count), "; skipped:", to!string(this.skipped_tests));
 
         return tests_failed == 0;
     }
-    
-    void add_diagnostic(string message) {
-        auto lines = splitLines(message)
-            .map!(a => "  #" ~ stripRight(a))
-            .join("\n");
 
-        this.write("  #DIAGNOSTIC: ", "\n", lines );
+    void add_diagnostic(string message)
+    {
+        auto lines = splitLines(message).map!(a => "  #" ~ stripRight(a)).join("\n");
+
+        this.write("  #DIAGNOSTIC: ", "\n", lines);
         this.tests_data ~= TapData(TapDataType.diagnostic, true, message);
     }
-    
-    void add_note(string message) {
-        this.write( "#NOTE: ", message);
+
+    void add_note(string message)
+    {
+        this.write("#NOTE: ", message);
         this.tests_data ~= TapData(TapDataType.note, true, message);
     }
 
-    bool ok(bool delegate () test, string message) {
-        if (this.skipping) {
+    bool ok(bool delegate() test, string message)
+    {
+        if (this.skipping)
+        {
             this.skipped_tests += 1;
             return true;
         }
 
         bool result;
-        try {
+        try
+        {
             result = test();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             result = false;
             this.add_diagnostic(e.msg);
         }
@@ -132,8 +160,10 @@ struct Tap {
         return result;
     }
 
-    bool ok(bool is_true, string message ) {
-        if (this.skipping) {
+    bool ok(bool is_true, string message)
+    {
+        if (this.skipping)
+        {
             this.skipped_tests += 1;
             return true;
         }
@@ -142,28 +172,34 @@ struct Tap {
         return is_true;
     }
 
-    void do_debug(string message) {
-        if (this.debug_enabled) {
+    void do_debug(string message)
+    {
+        if (this.debug_enabled)
+        {
             stderr.writeln("DEBUG: " ~ message);
         }
     }
 
-    void skip(string message) {
+    void skip(string message)
+    {
         this.skipping = true;
         this.write("# skipping tests: ", message);
     }
-    
-    void resume(string message) {
+
+    void resume(string message)
+    {
         this.skipping = false;
         this.write("# resuming tests: ", message);
     }
 
-    void start_subtest() {
+    void start_subtest()
+    {
         this.warn("TODO start_subtest()");
     }
 }
 
-unittest {
+unittest
+{
     bool talk_to_me = std.process.environment.get("DEBUG") == "1" ? true : false;
     {
         auto tap = Tap(talk_to_me);
@@ -172,8 +208,8 @@ unittest {
         assert(tap.plan() == 10);
         assert(!tap.ok(false, "should fail"));
         assert(tap.ok(true, "should pass"));
-        assert(!tap.ok(delegate bool () { return false; }, "should fail"));
-        assert(tap.ok(delegate bool () { return true; },  "should pass"));
+        assert(!tap.ok(delegate bool() { return false; }, "should fail"));
+        assert(tap.ok(delegate bool() { return true; }, "should pass"));
         assert(tap.results().length == 4);
         assert(!tap.done_testing());
     }
@@ -194,6 +230,3 @@ unittest {
         assert(tap.done_testing());
     }
 }
-
-
-
