@@ -192,9 +192,11 @@ struct Tap
         this.write("# resuming tests: ", message);
     }
 
-    void start_subtest()
+    alias SubtestCoderef = bool delegate();
+    bool subtest(string label, SubtestCoderef subtest_callback)
     {
-        this.warn("TODO start_subtest()");
+        this.write("# subtest: ", label);
+        return subtest_callback();
     }
 }
 
@@ -228,5 +230,27 @@ unittest
         assert(tap.results().length == 4);
         assert(tap.skipped_tests == 2);
         assert(tap.done_testing());
+    }
+
+    { // subtests
+        auto tap = Tap(talk_to_me);
+        tap.plan(2);
+        // dfmt off
+        tap.ok(
+            tap.subtest(
+                "this is a subtest with 3 tests", 
+                delegate () {
+                    auto sub_tap = Tap(talk_to_me); 
+                    sub_tap.plan(3); 
+                    sub_tap.ok(true, "should pass");
+                    sub_tap.ok(!false, "should fail"); 
+                    sub_tap.ok(2 == 2, "should pass");
+                    return sub_tap.done_testing();
+                }
+            );
+        );
+        // dfmt on
+        tap.ok(true, "true after subtests");
+        tap.done_testing();
     }
 }
