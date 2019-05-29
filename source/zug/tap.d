@@ -30,6 +30,7 @@ struct Tap
     private int tests_passed;
     private int tests_failed;
     private string cache = ""; // cache debug output here ... probably
+    private uint indentation = 0;
 
     private bool debug_enabled = false;
     private bool print_messages = true;
@@ -59,9 +60,15 @@ struct Tap
 
     void write(string[] message...)
     {
+        import std.array: replicate;
+        
+        string[] result;
+        // dfmt off
+        auto indent_string = " ".replicate(this.indentation);
+        // dftm on
         if (this.verbose())
         {
-            writeln(message.join(" "));
+            writeln(indent_string, message.join(" "));
         }
     }
 
@@ -92,8 +99,7 @@ struct Tap
     void add_result(bool success, string message)
     {
         this.tests_count++;
-        this.write((success ? "ok" : "not ok"), to!string(this.tests_count), message);
-
+        this.write( (success ? "ok" : "not ok"), to!string(this.tests_count), message);
         this.tests_data ~= TapData(TapDataType.test_result, success, message);
     }
 
@@ -103,7 +109,7 @@ struct Tap
 
         foreach (TapData result; this.tests_data)
         {
-            // why am I doing this ?
+            // not all results are tests results, some are notes or debug or something else
             if (result.data_type != TapDataType.test_result)
             {
                 continue;
@@ -130,6 +136,7 @@ struct Tap
     }
 
     void report() {
+        // dfmt off 
         this.write(
             to!string(tests_passed), "tests passed;", 
             to!string(tests_failed), "tests failed"
@@ -139,7 +146,7 @@ struct Tap
             "Planned:", to!string(this.tests_planned), 
             "; completed:", to!string(this.tests_count), 
             "; skipped:", to!string(this.tests_skipped));
-
+        // dfmt on
     }
 
     void add_diagnostic(string message)
@@ -258,7 +265,8 @@ unittest
             tap.subtest(
                 "this is a subtest with 3 tests", 
                 delegate bool () {
-                    auto sub_tap = Tap(talk_to_me); 
+                    auto sub_tap = Tap(talk_to_me);
+                    sub_tap.indentation = tap.indentation + 2;
                     sub_tap.plan(3); 
                     sub_tap.ok(true, "should pass");
                     sub_tap.ok(!false, "should fail"); 
