@@ -160,7 +160,7 @@ struct Tap
         return result;
     }
 
-    bool ok(bool is_true, string message)
+    bool ok(bool is_true, string message = "")
     {
         if (this.skipping)
         {
@@ -247,7 +247,7 @@ unittest
                     sub_tap.ok(2 == 2, "should pass");
                     return sub_tap.done_testing();
                 }
-            );
+            )
         );
         // dfmt on
         tap.ok(true, "true after subtests");
