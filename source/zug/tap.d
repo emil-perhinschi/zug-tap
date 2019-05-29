@@ -23,18 +23,20 @@ struct TapData
 
 struct Tap
 {
-    private int planned_tests;
+    private bool have_plan = false;
+    private int tests_planned;
     private TapData[] tests_data;
-    private int tests_count = 0;
-
+    private int tests_count;
+    private int tests_passed;
+    private int tests_failed;
     private string cache = ""; // cache debug output here ... probably
 
     private bool debug_enabled = false;
     private bool print_messages = true;
 
-    // skip tests and add them to skipped_tests until true
+    // skip tests and add them to tests_skipped until true
     private bool skipping = false;
-    private int skipped_tests;
+    private int tests_skipped;
 
     this(bool verbose)
     {
@@ -73,12 +75,13 @@ struct Tap
 
     void plan(int plan)
     {
-        this.planned_tests = plan;
+        this.tests_planned = plan;
+        this.have_plan = true;
     }
 
     int plan()
     {
-        return this.planned_tests ? this.planned_tests : 0;
+        return this.tests_planned ? this.tests_planned : 0;
     }
 
     TapData[] results()
@@ -97,10 +100,10 @@ struct Tap
     bool done_testing()
     {
         string[string] summary;
-        int tests_passed = 0;
-        int tests_failed = 0;
+
         foreach (TapData result; this.tests_data)
         {
+            // why am I doing this ?
             if (result.data_type != TapDataType.test_result)
             {
                 continue;
@@ -108,20 +111,35 @@ struct Tap
 
             if (result.success)
             {
-                tests_passed++;
+                this.tests_passed++;
             }
             else
             {
-                tests_failed++;
+                this.tests_failed++;
             }
         }
 
-        this.write(to!string(tests_passed), "tests passed;",
-                to!string(tests_failed), "tests failed");
-        this.write("Planned:", to!string(this.planned_tests), "; completed:",
-                to!string(this.tests_count), "; skipped:", to!string(this.skipped_tests));
+        if (this.have_plan) 
+        {
+            return this.tests_failed == 0 && this.tests_count == this.tests_planned;
+        }
+        else 
+        {
+            return this.tests_failed == 0;
+        }
+    }
 
-        return tests_failed == 0;
+    void report() {
+        this.write(
+            to!string(tests_passed), "tests passed;", 
+            to!string(tests_failed), "tests failed"
+        );
+        
+        this.write(
+            "Planned:", to!string(this.tests_planned), 
+            "; completed:", to!string(this.tests_count), 
+            "; skipped:", to!string(this.tests_skipped));
+
     }
 
     void add_diagnostic(string message)
@@ -142,7 +160,7 @@ struct Tap
     {
         if (this.skipping)
         {
-            this.skipped_tests += 1;
+            this.tests_skipped += 1;
             return true;
         }
 
@@ -164,7 +182,7 @@ struct Tap
     {
         if (this.skipping)
         {
-            this.skipped_tests += 1;
+            this.tests_skipped += 1;
             return true;
         }
 
@@ -228,7 +246,7 @@ unittest
         assert(tap.ok(true, "should pass"));
         assert(tap.ok(true, "should pass"));
         assert(tap.results().length == 4);
-        assert(tap.skipped_tests == 2);
+        assert(tap.tests_skipped == 2);
         assert(tap.done_testing());
     }
 
@@ -239,7 +257,7 @@ unittest
         tap.ok(
             tap.subtest(
                 "this is a subtest with 3 tests", 
-                delegate () {
+                delegate bool () {
                     auto sub_tap = Tap(talk_to_me); 
                     sub_tap.plan(3); 
                     sub_tap.ok(true, "should pass");
@@ -253,4 +271,23 @@ unittest
         tap.ok(true, "true after subtests");
         tap.done_testing();
     }
+
+/*
+
+TODO tests: 
+ - plan exists and result is based on passed tests matching planned tests
+ - plan does not exist and final result is based on failed tests being equal to 0
+ - 
+
+TODO code: 
+ - indentation for subtests (should I go beyond one level of subtests, is there any use in it ? )
+ - get test final report as a struct
+ - get test final report as json/csv
+ 
+
+TODO think about it: 
+ - do something like prove from perl 
+ - how would I do standalone tests that do not get compiled in the production version but can be executed when running "dub test" ? 
+    Maybe have the tests in a separate source/t/ folder and be imported in a unittest block in the library file ?
+*/
 }
