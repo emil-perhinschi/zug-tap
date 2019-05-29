@@ -61,7 +61,7 @@ struct Tap
     void write(string[] message...)
     {
         import std.array: replicate;
-        
+
         string[] result;
         // dfmt off
         auto indent_string = " ".replicate(this.indentation);
@@ -84,6 +84,7 @@ struct Tap
     {
         this.tests_planned = plan;
         this.have_plan = true;
+        this.write("1.." ~ to!string(this.tests_planned) );
     }
 
     int plan()
@@ -221,7 +222,9 @@ struct Tap
     bool subtest(string label, SubtestCoderef subtest_callback)
     {
         this.write("# subtest: ", label);
-        return subtest_callback();
+        auto subtest_result = subtest_callback();
+        this.ok(subtest_result, label);
+        return subtest_result;
     }
 }
 
