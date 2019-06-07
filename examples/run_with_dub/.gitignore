@@ -1,0 +1,25 @@
+# Compiled Object files
+*.o
+*.obj
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.a
+*.lib
+
+# DUB
+.dub
+docs.json
+__dummy.html
+
+# Code coverage
+*.lst
+
+zug-tap-test-library
+
+# don't know what these are
+dub_platform_probe*

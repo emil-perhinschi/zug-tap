@@ -3,8 +3,9 @@
 	"authors": [
 		"Emil Nicolaie Perhinschi"
 	],
+	"version": "0.0.3",
 	"description": "Basic TAP implementation for D v2",
 	"copyright": "Copyright © 2018, Emil Nicolaie Perhinschi",
-	"license": "proprietary",
+	"license": "BSL-1.0",
     "targetType": "library"
 }

@@ -1,0 +1,22 @@
+{
+	"authors": [
+		"Emil Nicolaie Perhinschi"
+	],
+	"copyright": "Copyright © 2019, Emil Nicolaie Perhinschi",
+	"description": "example how to run zug-tap",
+	"license": "proprietary",
+	"name": "dubtest",
+	"targetType": "library",
+	"subPackages": [
+		{
+			"name":"tests",
+			"targetType":"executable",
+			"dependencies": {
+				"zug-tap" : "*",
+				"dubtest" : { "path":"../" }
+			},
+			"sourcePath":"t",
+			"targetName":"tests"
+		}
+	]
+}
