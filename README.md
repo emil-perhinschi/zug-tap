@@ -21,6 +21,8 @@ ideal experience would be to instantiate a test, then write code as if you're
 using your library and add "t.ok" or "t.is" from place to place to check the 
 results are what you expect.
 
+## TODO:
+
  - is(true, true, "true is true") : see if two variables have the same values, if not print what was given and what was expected
  - same(some_object, some_object, "are the same") : see if two values are the same thing (such as pointers to the same address), if not give more details 
  - isa(...): check type or parent of type
