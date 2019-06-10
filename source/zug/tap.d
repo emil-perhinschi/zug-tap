@@ -23,12 +23,14 @@ struct TapData
 
 struct Tap
 {
+    private string test_name = "";
+
     private bool have_plan = false;
-    private int tests_planned;
+    private int tests_planned = 0;
     private TapData[] tests_data;
-    private int tests_count;
-    private int tests_passed;
-    private int tests_failed;
+    private int tests_count = 0;
+    private int tests_passed = 0;
+    private int tests_failed = 0;
     private string cache = ""; // cache debug output here ... probably
     private uint indentation = 0;
 
@@ -39,13 +41,9 @@ struct Tap
     private bool skipping = false;
     private int tests_skipped;
 
-    this(bool verbose)
+    this(string test_name)
     {
-        this.print_messages = verbose;
-        if (this.verbose())
-        {
-            this.debug_enabled = std.process.environment.get("DEBUG") == "1" ? true : false;
-        }
+        this.test_name = test_name;
     }
 
     void verbose(bool verbose)
@@ -139,6 +137,7 @@ struct Tap
     void report() {
         // dfmt off 
         this.write(
+            "Test: " ~ this.test_name ~ " = ",
             to!string(tests_passed), "tests passed;", 
             to!string(tests_failed), "tests failed"
         );
@@ -146,7 +145,8 @@ struct Tap
         this.write(
             "Planned:", to!string(this.tests_planned), 
             "; completed:", to!string(this.tests_count), 
-            "; skipped:", to!string(this.tests_skipped));
+            "; skipped:", to!string(this.tests_skipped),
+            "\n\n");
         // dfmt on
     }
 
@@ -230,10 +230,10 @@ struct Tap
 
 unittest
 {
-    bool talk_to_me = std.process.environment.get("DEBUG") == "1" ? true : false;
     {
-        auto tap = Tap(talk_to_me);
-        assert(tap.verbose() == talk_to_me);
+        auto tap = Tap("first unittest block");
+        tap.verbose(true);
+        assert(tap.verbose() == true);
         tap.plan(10);
         assert(tap.plan() == 10);
         assert(!tap.ok(false, "should fail"));
@@ -242,11 +242,13 @@ unittest
         assert(tap.ok(delegate bool() { return true; }, "should pass"));
         assert(tap.results().length == 4);
         assert(!tap.done_testing());
+        tap.report();
     }
 
     { // test skipping
-        auto tap = Tap(talk_to_me);
-        assert(tap.verbose() == talk_to_me);
+        auto tap = Tap("second unittest block");
+        tap.verbose(true);
+        assert(tap.verbose() == true);
         assert(tap.ok(true, "should pass"));
         assert(tap.ok(true, "should pass"));
         tap.skip("skipping two out of six tests");
@@ -258,17 +260,18 @@ unittest
         assert(tap.results().length == 4);
         assert(tap.tests_skipped == 2);
         assert(tap.done_testing());
+        tap.report();
     }
 
     { // subtests
-        auto tap = Tap(talk_to_me);
+        auto tap = Tap("third unittest block with subtest");
         tap.plan(2);
         // dfmt off
         tap.ok(
             tap.subtest(
                 "this is a subtest with 3 tests", 
                 delegate bool () {
-                    auto sub_tap = Tap(talk_to_me);
+                    auto sub_tap = Tap("first subtest");
                     sub_tap.indentation = tap.indentation + 2;
                     sub_tap.plan(3); 
                     sub_tap.ok(true, "should pass");
@@ -276,11 +279,13 @@ unittest
                     sub_tap.ok(2 == 2, "should pass");
                     return sub_tap.done_testing();
                 }
-            )
+            ),
+            "subtest executed and returned true"
         );
         // dfmt on
         tap.ok(true, "true after subtests");
         tap.done_testing();
+        tap.report();
     }
 
 /*
