@@ -34,6 +34,9 @@ struct Tap
     private string cache = ""; // cache debug output here ... probably
     private uint indentation = 0;
 
+    private ProcessPipes consumer;
+    private bool use_consumer = false;
+
     private bool debug_enabled = false;
     private bool print_messages = true;
 
@@ -44,6 +47,22 @@ struct Tap
     this(string test_name)
     {
         this.test_name = test_name;
+    }
+
+    void set_consumer( ProcessPipes consumer) 
+    {
+        this.consumer = consumer;           
+        this.use_consumer = true;
+    }
+
+    void enable_consumer()
+    {
+        this.use_consumer = true;
+    }
+
+    void disable_consumer()
+    {
+        this.use_consumer = false;
     }
 
     void verbose(bool verbose)
@@ -64,9 +83,14 @@ struct Tap
         // dfmt off
         auto indent_string = " ".replicate(this.indentation);
         // dftm on
+        auto final_message = indent_string ~ message.join(" ");
         if (this.verbose())
         {
-            writeln(indent_string, message.join(" "));
+            writeln(final_message);
+        }
+
+        if (this.use_consumer) {
+            this.consumer.stdin.writeln(final_message);
         }
     }
 
@@ -104,6 +128,14 @@ struct Tap
 
     bool done_testing()
     {
+
+        if (this.use_consumer) {
+            this.consumer.stdin.flush();
+            this.consumer.stdin.close();
+            wait(this.consumer.pid);
+            this.disable_consumer();
+        }
+
         string[string] summary;
 
         foreach (TapData result; this.tests_data)
@@ -132,6 +164,7 @@ struct Tap
         {
             return this.tests_failed == 0;
         }
+
     }
 
     void report() {
@@ -288,12 +321,42 @@ unittest
         tap.report();
     }
 
+    { // test consumer tappy
+        import std.file;
+        import std.process;
+
+        string path_to_tappy = "/usr/bin/tappy";
+        auto tap = Tap("test with pipe to tappy");
+        tap.verbose(false);
+
+        if ( path_to_tappy.exists && path_to_tappy.isFile ) {
+            auto pipe = pipeProcess(path_to_tappy, Redirect.stdin);
+            tap.set_consumer(pipe);
+        }
+        else {
+            tap.verbose(true);
+            tap.skip("tappy not found, skipping the consumer pipe tests");
+        }
+
+        tap.plan(6);
+        tap.ok(true, "should pass 1");
+        tap.ok(true, "should pass 2");
+        tap.ok(true, "should pass 3");
+        tap.ok(true, "should pass 4");
+        tap.ok(true, "should pass 5");
+        tap.ok(false, "should fail 6");
+        tap.done_testing();
+
+        // not calling report(), let tappy do the reporting
+        // tap.verbose(true);
+        // tap.report();
+    }
+
 /*
 
 TODO tests: 
  - plan exists and result is based on passed tests matching planned tests
- - plan does not exist and final result is based on failed tests being equal to 0
- - 
+ - plan does not exist and final result is based on failed tests being equal to 0 
 
 TODO code: 
  - indentation for subtests (should I go beyond one level of subtests, is there any use in it ? )
