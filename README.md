@@ -6,22 +6,72 @@ TAP (Test Anything Protocol) for D
 
 pre-alpha
 
-## STATUS
+## SYNOPSIS
 
- - ok(true, "some message") works 
- - summaries work
- - subtests kind of work
- - skipping tests with message works
- - diag/notes work
+    import std.file;
+    import std.process;
+    import zug.tap;
 
-## PLAN
+    string path_to_tappy = "/usr/bin/tappy";
+    // start a new test
+    auto tap = Tap("test with pipe to tappy");
+    tap.verbose(false); // default is true
 
-The tests should be easy to write and easy to read, without boilerplate. The 
-ideal experience would be to instantiate a test, then write code as if you're
-using your library and add "t.ok" or "t.is" from place to place to check the 
-results are what you expect.
+    if ( path_to_tappy.exists && path_to_tappy.isFile ) {
+        auto pipe = pipeProcess(path_to_tappy, Redirect.stdin);
+        tap.set_consumer(pipe);
+    }
+    else {
+        tap.verbose(true);
+        tap.skip("tappy not found, skipping the consumer pipe tests");
+    }
 
-## TODO:
+    tap.plan(6);
+    tap.ok(true, "should pass 1");
+    tap.ok(true, "should pass 2");
+    tap.ok(true, "should pass 3");
+    tap.ok(true, "should pass 4");
+    tap.ok(true, "should pass 5");
+    tap.ok(false, "should fail 6");
+    tap.done_testing();
+
+    // not calling report(), let tappy do the reporting
+    // tap.verbose(true);
+    // tap.report();
+
+or without a consumer
+
+    auto tap = Tap("second unittest block");
+    tap.verbose(true);
+    tap.ok(true, "should pass");
+    tap.ok(true, "should pass");
+    tap.skip("skipping two out of six tests");
+    tap.ok(true, "should pass");
+    tap.ok(true, "should pass");
+    tap.resume("skipped two tests out of six, resuming");
+    tap.ok(true, "should pass");
+    tap.ok(true, "should pass");
+    tap.ok(false, "should fail 6");
+    tap.done_testing();
+
+    writeln(tap.results().length); // 5
+    writeln(tap.tests_skipped); // 2
+    writeln(tap.tests_failed); // 1
+    writeln(tap.tests_passed); // 4
+    tap.report(); // print a summary, not parseable by a tap reporter
+
+## WHAT WORKS SO FAR
+
+ - ok(true, "some message")
+ - report(): prints a summary to STDOUT
+ - skip("message"): skipping tests with message
+ - resume("message"): stop skipping tests
+ - diag()/notes()
+ - subtests; I'm not yet certain they do the right thing
+ - piping to an external consumer (tested with tappy)
+
+
+## TODO
 
  - is(true, true, "true is true") : see if two variables have the same values, if not print what was given and what was expected
  - same(some_object, some_object, "are the same") : see if two values are the same thing (such as pointers to the same address), if not give more details 
@@ -31,7 +81,20 @@ results are what you expect.
  - todo()
  - ... aiming at a similar API like Test::More has
  - test with established TAP consumers
- 
+ - write .tap files
+
+TODO tests: 
+ - plan exists and result is based on passed tests matching planned tests
+ - plan does not exist and final result is based on failed tests being equal to 0 
+
+TODO code: 
+ - get test final report as a struct
+ - get test final report as json/csv
+
+TODO think about it: 
+ - do something like prove from perl 
+ - how would I do standalone tests that do not get compiled in the production version but can be executed when running "dub test" ? 
+    Maybe have the tests in a separate source/t/ folder and be imported in a unittest block in the library file ?
 
 ## WHY 
 
@@ -43,6 +106,19 @@ What I felt was missing was a visual feedback, the ability to continue
 to run the tests even if one of them fails and summaries about how many
 tests failed and how many passed, and the TAP way of writing automatic
 tests provides that without too much boilerplate.
+
+## PLAN
+
+Tests should save you time despite the extra typing. Still, a lot of the testing
+frameworks I have seen used require a lot of boilerplate, and even if they don't
+programmers write a lot of boilerplate anyway so testing gets hard and automatic
+tests end up either taking a lot of time or get abandoned because "it is too
+expensive".
+
+The tests should be easy to write and easy to read, without boilerplate. The 
+ideal experience would be to instantiate a test object, then write code as if 
+you're using your library and add "t.ok(...)" or "t.is(...)" from place to place
+to check the results are what you expect.
 
 ## HOWTO
 
