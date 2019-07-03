@@ -346,27 +346,14 @@ unittest
         tap.ok(true, "should pass 5");
         tap.ok(false, "should fail 6");
         tap.done_testing();
+        assert(tap.tests_passed == 5, "five tests passed");
+        assert(tap.tests_failed == 1, "one test failed");
+        assert(tap.results().length == 6, "six tests ran");
 
         // not calling report(), let tappy do the reporting
         // tap.verbose(true);
         // tap.report();
     }
 
-/*
 
-TODO tests: 
- - plan exists and result is based on passed tests matching planned tests
- - plan does not exist and final result is based on failed tests being equal to 0 
-
-TODO code: 
- - indentation for subtests (should I go beyond one level of subtests, is there any use in it ? )
- - get test final report as a struct
- - get test final report as json/csv
- 
-
-TODO think about it: 
- - do something like prove from perl 
- - how would I do standalone tests that do not get compiled in the production version but can be executed when running "dub test" ? 
-    Maybe have the tests in a separate source/t/ folder and be imported in a unittest block in the library file ?
-*/
 }
