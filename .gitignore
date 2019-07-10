@@ -15,6 +15,7 @@
 .dub
 docs.json
 __dummy.html
+dub.selections.json
 
 # Code coverage
 *.lst
