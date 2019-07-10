@@ -1,0 +1,13 @@
+{
+    "targetType": "library",
+	"authors": [
+		"Emil Nicolaie Perhinschi"
+	],
+	"copyright": "Copyright © 2019, Emil Nicolaie Perhinschi",
+	"dependencies": {
+		"zug-tap": "~>0.0.3"
+	},
+	"description": "zug.tap example of tests running with Perl5 prove",
+	"license": "BSL-1.0",
+	"name": "run_with_perl5_prove"
+}

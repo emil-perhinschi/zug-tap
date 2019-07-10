@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/run_with_perl5_prove
+run_with_perl5_prove.so
+run_with_perl5_prove.dylib
+run_with_perl5_prove.dll
+run_with_perl5_prove.a
+run_with_perl5_prove.lib
+run_with_perl5_prove-test-*
+*.exe
+*.o
+*.obj
+*.lst
