@@ -1,8 +1,12 @@
+#!/usr/bin/env dub
+/+dub.json: { "dependencies": { "zug-tap": "*", "testlib": { "path": "../" }  } } +/
+
+import zug.tap;
+import testlib;
+
+
 void main() 
 {
-    import zug.tap;
-    import testlib;
-    import std.stdio;
 
     auto tap = Tap("second unittest block");
     tap.verbose(true);

@@ -162,6 +162,7 @@ struct Tap
         }
         else 
         {
+            this.write("1.." ~ to!string(this.tests_count) );
             return this.tests_failed == 0;
         }
 
@@ -354,6 +355,4 @@ unittest
         // tap.verbose(true);
         // tap.report();
     }
-
-
 }
