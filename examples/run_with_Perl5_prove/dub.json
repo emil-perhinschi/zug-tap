@@ -9,5 +9,5 @@
 	},
 	"description": "zug.tap example of tests running with Perl5 prove",
 	"license": "BSL-1.0",
-	"name": "run_with_perl5_prove"
+	"name": "testlib"
 }
