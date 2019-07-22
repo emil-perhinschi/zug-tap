@@ -184,7 +184,7 @@ struct Tap
         // dfmt on
     }
 
-    void add_diagnostic(string message)
+    void diag(string message)
     {
         auto lines = splitLines(message).map!(a => "  #" ~ stripRight(a)).join("\n");
 
@@ -192,7 +192,7 @@ struct Tap
         this.tests_data ~= TapData(TapDataType.diagnostic, true, message);
     }
 
-    void add_note(string message)
+    void note(string message)
     {
         this.write("#NOTE: ", message);
         this.tests_data ~= TapData(TapDataType.note, true, message);
@@ -214,7 +214,7 @@ struct Tap
         catch (Exception e)
         {
             result = false;
-            this.add_diagnostic(e.msg);
+            this.diag(e.msg);
         }
         this.add_result(result, message);
         return result;
@@ -252,14 +252,15 @@ struct Tap
         this.write("# resuming tests: ", message);
     }
 
-    alias SubtestCoderef = bool delegate();
-    bool subtest(string label, SubtestCoderef subtest_callback)
-    {
-        this.write("# subtest: ", label);
-        auto subtest_result = subtest_callback();
-        this.ok(subtest_result, label);
-        return subtest_result;
-    }
+    // alias SubtestCoderef = bool delegate();
+    // bool subtest(string label, SubtestCoderef subtest_callback)
+    // {
+    //     this.write("# subtest: ", label);
+    //     sub_tap.indentation = tap.indentation + 2;
+    //     auto subtest_result = subtest_callback();
+    //     this.ok(subtest_result, label);
+    //     return subtest_result;
+    // }
 }
 
 unittest
@@ -297,30 +298,30 @@ unittest
         tap.report();
     }
 
-    { // subtests
-        auto tap = Tap("third unittest block with subtest");
-        tap.plan(2);
-        // dfmt off
-        tap.ok(
-            tap.subtest(
-                "this is a subtest with 3 tests", 
-                delegate bool () {
-                    auto sub_tap = Tap("first subtest");
-                    sub_tap.indentation = tap.indentation + 2;
-                    sub_tap.plan(3); 
-                    sub_tap.ok(true, "should pass");
-                    sub_tap.ok(!false, "should fail"); 
-                    sub_tap.ok(2 == 2, "should pass");
-                    return sub_tap.done_testing();
-                }
-            ),
-            "subtest executed and returned true"
-        );
-        // dfmt on
-        tap.ok(true, "true after subtests");
-        tap.done_testing();
-        tap.report();
-    }
+    // { // subtests
+    //     auto tap = Tap("third unittest block with subtest");
+    //     tap.plan(2);
+    //     // dfmt off
+    //     tap.ok(
+    //         tap.subtest(
+    //             "this is a subtest with 3 tests", 
+    //             delegate bool () {
+    //                 auto sub_tap = Tap("first subtest");
+    //                 sub_tap.indentation = tap.indentation + 2;
+    //                 sub_tap.plan(3); 
+    //                 sub_tap.ok(true, "should pass");
+    //                 sub_tap.ok(!false, "should fail"); 
+    //                 sub_tap.ok(2 == 2, "should pass");
+    //                 return sub_tap.done_testing();
+    //             }
+    //         ),
+    //         "subtest executed and returned true"
+    //     );
+    //     // dfmt on
+    //     tap.ok(true, "true after subtests");
+    //     tap.done_testing();
+    //     tap.report();
+    // }
 
     { // test consumer tappy
         import std.file;

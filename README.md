@@ -4,7 +4,7 @@ TAP (Test Anything Protocol) for D
 
 ## VERSION
 
-pre-alpha
+alpha
 
 ## SYNOPSIS
 
@@ -66,9 +66,10 @@ or without a consumer
  - report(): prints a summary to STDOUT
  - skip("message"): skipping tests with message
  - resume("message"): stop skipping tests
- - diag()/notes()
- - subtests; I'm not yet certain they do the right thing
+ - diag(): messages which don't interfere with parsers but are shown even when **verbose** is false
+ - note(): messages which don't interfere with parsers and are shown only when **verbose** is true
  - piping to an external consumer (tested with tappy)
+ - running tests with prove from Perl 5 ( https://perldoc.perl.org/prove.html ): see ./examples/run_with_Perl5_prove
 
 
 ## TODO
@@ -79,6 +80,7 @@ or without a consumer
  - is_deeply(...) : check if two datastructures have the same values
  - bail_out()
  - todo()
+ - explain() : dump data structure
  - ... aiming at a similar API like Test::More has
  - test with established TAP consumers
  - write .tap files
