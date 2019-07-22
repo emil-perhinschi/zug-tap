@@ -359,4 +359,17 @@ unittest
         // tap.verbose(true);
         // tap.report();
     }
+
+    // exercize note() and diag() ... TODO how do I test this ? need to capture STDOUT somehow
+    {
+        auto tap = Tap("exercise note() and diag()");
+        tap.verbose(false);
+        tap.plan(1);
+        tap.note("ERROR: this is a note, should not see it now because verbose is false");
+        tap.diag("this is a diagnostic, should see it no matter what verbose is set to");
+        tap.verbose(true);
+        tap.note("this is another note, should see it");
+        tap.ok(true);
+        tap.done_testing();
+    }
 }
