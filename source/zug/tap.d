@@ -187,8 +187,11 @@ struct Tap
     void diag(string message)
     {
         auto lines = splitLines(message).map!(a => "  #" ~ stripRight(a)).join("\n");
-
+        auto old_verbose = this.verbose;
+        // diagnostics always get printed
+        this.verbose(true);
         this.write("  #DIAGNOSTIC: ", "\n", lines);
+        this.verbose(old_verbose);
         this.tests_data ~= TapData(TapDataType.diagnostic, true, message);
     }
 
