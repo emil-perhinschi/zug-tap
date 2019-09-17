@@ -301,31 +301,6 @@ unittest
         tap.report();
     }
 
-    // { // subtests
-    //     auto tap = Tap("third unittest block with subtest");
-    //     tap.plan(2);
-    //     // dfmt off
-    //     tap.ok(
-    //         tap.subtest(
-    //             "this is a subtest with 3 tests", 
-    //             delegate bool () {
-    //                 auto sub_tap = Tap("first subtest");
-    //                 sub_tap.indentation = tap.indentation + 2;
-    //                 sub_tap.plan(3); 
-    //                 sub_tap.ok(true, "should pass");
-    //                 sub_tap.ok(!false, "should fail"); 
-    //                 sub_tap.ok(2 == 2, "should pass");
-    //                 return sub_tap.done_testing();
-    //             }
-    //         ),
-    //         "subtest executed and returned true"
-    //     );
-    //     // dfmt on
-    //     tap.ok(true, "true after subtests");
-    //     tap.done_testing();
-    //     tap.report();
-    // }
-
     { // test consumer tappy
         import std.file;
         import std.process;
