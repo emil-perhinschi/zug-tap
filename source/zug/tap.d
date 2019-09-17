@@ -13,7 +13,7 @@ enum TapDataType
     note
 };
 
-// need to keep the diagnostics, the notes, the results etc. in order
+/// needed to keep the diagnostics, the notes, the results etc. in order
 struct TapData
 {
     TapDataType data_type;
@@ -21,6 +21,9 @@ struct TapData
     string message;
 }
 
+/**
+struct Tap keeps the test data and gives access to the test methods
+*/
 struct Tap
 {
     private string test_name = "";
@@ -54,6 +57,7 @@ struct Tap
         this.consumer = consumer;           
         this.use_consumer = true;
     }
+
 
     void enable_consumer()
     {
@@ -102,6 +106,9 @@ struct Tap
         }
     }
 
+    /**
+        set the number of planned tests
+    */
     void plan(int plan)
     {
         this.tests_planned = plan;
@@ -109,15 +116,23 @@ struct Tap
         this.write("1.." ~ to!string(this.tests_planned) );
     }
 
+    /**
+        get the number of planned tests
+    */
     int plan()
     {
         return this.tests_planned ? this.tests_planned : 0;
     }
 
+
+    /**
+        get the data for the tests ran
+    */
     TapData[] results()
     {
         return this.tests_data;
     }
+
 
     void add_result(bool success, string message)
     {
@@ -126,6 +141,12 @@ struct Tap
         this.tests_data ~= TapData(TapDataType.test_result, success, message);
     }
 
+    /**
+        Finish testing, do the accounting, print the number of tests ran. Does not take any argument.
+        After this you can run `report()`.
+            
+        Returns `true` if all tests failed, else returns `false` 
+    */
     bool done_testing()
     {
 
@@ -168,6 +189,10 @@ struct Tap
 
     }
 
+    /**
+    prints the detailed info about the test results.
+
+    */
     void report() {
         // dfmt off 
         this.write(
@@ -184,6 +209,11 @@ struct Tap
         // dfmt on
     }
 
+    /**
+        Print a diagnostic message and add it to the test data.
+
+        It will be printed regardless of what `verbose` is set to.
+    */
     void diag(string message)
     {
         auto lines = splitLines(message).map!(a => "  #" ~ stripRight(a)).join("\n");
@@ -195,13 +225,23 @@ struct Tap
         this.tests_data ~= TapData(TapDataType.diagnostic, true, message);
     }
 
+    /**
+        Print a note if `verbose` is set to `true`.
+    */
     void note(string message)
     {
         this.write("#NOTE: ", message);
         this.tests_data ~= TapData(TapDataType.note, true, message);
     }
 
-    bool ok(bool delegate() test, string message)
+    /**
+        prints "ok" or "not ok" depending if the test succeeds or fails
+
+        Params:
+            test = delegate, should return a boolean
+            message = string, optional
+    */
+    bool ok(bool delegate() test, string message = "")
     {
         if (this.skipping)
         {
@@ -223,6 +263,13 @@ struct Tap
         return result;
     }
 
+    /**
+        prints "ok" or "not ok" depending if the test succeeds or fails
+
+        Params:
+            test = boolean
+            message = string, optional
+    */
     bool ok(bool is_true, string message = "")
     {
         if (this.skipping)
@@ -235,6 +282,9 @@ struct Tap
         return is_true;
     }
 
+    /**
+        write a debugging message to STDERR if `debug_enabled` is `true`
+    */
     void do_debug(string message)
     {
         if (this.debug_enabled)
@@ -243,12 +293,18 @@ struct Tap
         }
     }
 
+    /**
+        Sets `skipping` to `true` which will cause tests to be skipped; until you run `resume` no tests will be executed
+    */
     void skip(string message)
     {
         this.skipping = true;
         this.write("# skipping tests: ", message);
     }
 
+    /**
+        Sets `skipping` to `false`: as long as it is `false` the result of the tests will be recorded or the test callbacks will be executed;
+    */
     void resume(string message)
     {
         this.skipping = false;
