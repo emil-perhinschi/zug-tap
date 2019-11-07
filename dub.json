@@ -7,6 +7,7 @@
 	"copyright": "Copyright © 2018, Emil Nicolaie Perhinschi",
 	"license": "BSL-1.0",
 	"targetType": "library",
+	"sourcePaths": ["source/zug/"],
 	"subPackages": [
         {
             "name":"proved",
