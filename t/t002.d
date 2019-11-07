@@ -1,4 +1,4 @@
-module t.t002;#!/usr/bin/env dub
+#!/usr/bin/env dub
 /+dub.json: { "dependencies": { "zug-tap": "*" } } +/
 
 

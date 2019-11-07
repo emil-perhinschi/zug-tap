@@ -177,7 +177,7 @@ struct Tap
             }
         }
 
-        if (this.have_plan) 
+        if (this.have_plan)
         {
             return this.tests_failed == 0 && this.tests_count == this.tests_planned;
         }
@@ -197,8 +197,8 @@ struct Tap
         // dfmt off 
         this.write(
             "Test: " ~ this.test_name ~ " = ",
-            to!string(tests_passed), "tests passed;", 
-            to!string(tests_failed), "tests failed"
+            to!string(this.tests_passed), "tests passed;", 
+            to!string(this.tests_failed), "tests failed"
         );
         
         this.write(
@@ -391,7 +391,7 @@ unittest
         // tap.report();
     }
 
-    // exercize note() and diag() ... TODO how do I test this ? need to capture STDOUT somehow
+    // exercise note() and diag() ... TODO how do I test this ? need to capture STDOUT somehow
     {
         auto tap = Tap("exercise note() and diag()");
         tap.verbose(false);
