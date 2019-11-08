@@ -28,3 +28,5 @@ dub_platform_probe*
 # ignore compiled TAP test files
 t/*
 !t/*.d
+
+zug-tap_proved
