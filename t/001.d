@@ -1,6 +1,5 @@
 #!/usr/bin/env dub
 /+dub.json: { "dependencies": { "zug-tap": "*" } } +/
-module test_001;
 
 void main() {
     import zug.tap;
@@ -8,12 +7,12 @@ void main() {
     auto tap = Tap("tap test 1");
     tap.verbose(true);
     tap.plan(7);
-    tap.ok(true);
-    tap.ok(true);
-    tap.ok(false);
-    tap.ok(true);
-    tap.ok(true);
-    tap.ok(false);
-    tap.ok(true);
+    tap.ok(true, "should pass");
+    tap.ok(true, "should pass");
+    tap.ok(false, "should fail");
+    tap.ok(true, "should pass");
+    tap.ok(true, "should pass");
+    tap.ok(false, "should fail");
+    tap.ok(true, "should pass");
     tap.done_testing();
 }
