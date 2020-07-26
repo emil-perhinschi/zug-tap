@@ -11,7 +11,8 @@
 	"subPackages": [
         {
             "name":"proved",
-            "targetType":"executable",
+			"targetType":"executable",
+			"targetName":"proved",
             "dependencies": {
                 "zug-tap": { 
 					"version": "*",

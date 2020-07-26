@@ -1,6 +1,4 @@
-
-bool bla()
-{
-	import std.stdio;
-	return false;
+bool bla() {
+    import std.stdio;
+    return false;
 }

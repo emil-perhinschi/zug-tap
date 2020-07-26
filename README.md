@@ -122,9 +122,15 @@ ideal experience would be to instantiate a test object, then write code as if
 you're using your library and add "t.ok(...)" or "t.is(...)" from place to place
 to check the results are what you expect.
 
-## HOWTO
+## HOWTO 
+
+### How to write tests
 
 look in the "examples" folder or in the unittest blocks in the code
+
+### How to build the consumer 
+
+dub build :proved
 
 ## CREDITS
 
