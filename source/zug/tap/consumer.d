@@ -55,7 +55,7 @@ struct TestResults {
     int passed = 0; // passed tests
     int failed = 0; // failed tests
     int planned = 0; // planned tests;
-    bool done_testing = false; // did we see "done testing" printed to STDOUT
+    bool done_testing = false; // was there a plan printed and were all the planned tests run
 }
 
 TestResults run_test(string test, bool verbose = false, bool do_debug = false) {
@@ -63,6 +63,7 @@ TestResults run_test(string test, bool verbose = false, bool do_debug = false) {
     import std.process : pipeProcess, Redirect, wait;
     import std.regex : ctRegex, match;
     import std.uni : toLower;
+    import std.conv: to;
 
     TestResults raw_test_data;
 
@@ -70,33 +71,45 @@ TestResults run_test(string test, bool verbose = false, bool do_debug = false) {
 
     auto processPipe = pipeProcess(["/usr/bin/dub", "--single", test],
             Redirect.stdout | Redirect.stderr);
-    scope (exit)
-        wait(processPipe.pid);
+    
+    scope (exit) wait(processPipe.pid);
 
     debug writeln("ran ", test, " looking at output");
-    auto plan = ctRegex!(`^\s*\d+\.\.\d+`, "i");
-    auto ok = ctRegex!(`^\s*ok`);
-    auto not_ok = ctRegex!(`^\s*not ok`);
+    auto plan = ctRegex!(`^\s*(\d+)\.\.(\d+)\s*`, "i");
+    auto ok = ctRegex!(`^\s*ok\s(\d+)\s+(.*)`); 
+    auto not_ok = ctRegex!(`^\s*not ok\s(\d+)\s+(.*)`);
     auto diagnostic = ctRegex!(`^\s*#diagnostic:`);
     auto note = ctRegex!(`^\s*#note:`);
-    auto comment = ctRegex!(`^\s*#`);
+    auto comment = ctRegex!(`^\s*#(.*)`);
 
     foreach (line; processPipe.stdout.byLine) {
-        if (line.match(plan)) {
-            debug writeln("PLAN: ", line);
-        } else if (line.match(ok)) {
-            debug writeln("OK: ", line);
-        } else if (line.match(not_ok)) {
-            debug writeln("NOT OK: ", line);
-        } else if (line.match(diagnostic)) {
-            debug writeln("DIAGNOSTIC: ", line);
-        } else if (line.match(note)) {
-            debug writeln("NOTE: ", line);
-        } else if (line.match(comment)) {
-            debug writeln("COMMENT: ", line);
-        } else {
-            debug writeln("DON'T KNOW: ", line);
+        if (auto matched = line.match(plan)) {
+            raw_test_data.planned = matched.front[2].to!int;
+        } else if (auto matched = line.match(ok)) {
+            debug writeln("OK ", matched);
+            raw_test_data.passed++;
+        } else if (auto matched = line.match(not_ok)) {
+            debug writeln("NOT OK ", matched);
+            raw_test_data.failed++;
         }
+        // TODO later
+        // } else if (auto matched = line.match(diagnostic)) {
+        //     debug writeln("+++++++ ", matched);
+        //     debug writeln("DIAGNOSTIC: ", line);
+        // } else if (auto matched = line.match(note)) {
+        //     debug writeln("+++++++ ", matched);
+        //     debug writeln("NOTE: ", line);
+        // } else if (auto matched = line.match(comment)) {
+        //     debug writeln("+++++++ ", matched);
+        //     debug writeln("COMMENT: ", line);
+        // } else {
+        //     debug writeln("DON'T KNOW: ", line);
+        // }
     }
+
+    if (raw_test_data.failed + raw_test_data.passed == raw_test_data.planned) {
+        raw_test_data.done_testing = true;
+    }
+    writeln(test, raw_test_data);
     return raw_test_data;
 }

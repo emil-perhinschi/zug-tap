@@ -8,6 +8,7 @@
 	"license": "BSL-1.0",
 	"targetType": "library",
 	"sourcePaths": ["source/zug/"],
+	"targetName": "zug-tap",
 	"subPackages": [
         {
             "name":"proved",
