@@ -17,14 +17,20 @@ string[] read_dir(string source_dir, bool verbose = false, bool do_debug = false
     foreach (DirEntry entry; entries) {
         if (entry.isDir) {
             if (entry.name.baseName.indexOf('.') == 0) {
-                debug writeln("HIDDEN DIR found ", entry.name);
+                if (do_debug) {
+                    writeln("HIDDEN DIR found ", entry.name);
+                }
                 continue;
             }
-            debug writeln("DIR found ", entry.name);
+            if (do_debug) {
+                writeln("DIR found ", entry.name);
+            }
             files ~= read_dir(entry.name);
         } else {
             if (!entry.name.match(r"\.d$")) {
-                debug writeln("NOT A .D FILE", entry.name);
+                if (do_debug) {
+                    writeln("NOT A .D FILE", entry.name); 
+                }
                 continue;
             }
 
@@ -46,7 +52,7 @@ string[] read_test_files(string test_dir, bool verbose = false, bool do_debug = 
     auto files = dirEntries(test_dir, "*.d", SpanMode.shallow);
     auto file_paths = array(files);
 
-    debug writeln("file paths ", file_paths);
+    if (do_debug) { writeln("file paths ", file_paths); }
 
     return ["abc"];
 }
@@ -67,14 +73,14 @@ TestResults run_test(string test, bool verbose = false, bool do_debug = false) {
 
     TestResults raw_test_data;
 
-    debug writeln("running ", test);
+    if (verbose) { writeln("Running ", test); }
 
     auto processPipe = pipeProcess(["/usr/bin/dub", "--single", test],
             Redirect.stdout | Redirect.stderr);
-    
-    scope (exit) wait(processPipe.pid);
+    wait(processPipe.pid);
 
-    debug writeln("ran ", test, " looking at output");
+    if (do_debug) { writeln("ran ", test, " looking at output"); }
+
     auto plan = ctRegex!(`^\s*(\d+)\.\.(\d+)\s*`, "i");
     auto ok = ctRegex!(`^\s*ok\s(\d+)\s+(.*)`); 
     auto not_ok = ctRegex!(`^\s*not ok\s(\d+)\s+(.*)`);
@@ -82,14 +88,19 @@ TestResults run_test(string test, bool verbose = false, bool do_debug = false) {
     auto note = ctRegex!(`^\s*#note:`);
     auto comment = ctRegex!(`^\s*#(.*)`);
 
+    int tests_ran = 0;
     foreach (line; processPipe.stdout.byLine) {
         if (auto matched = line.match(plan)) {
-            raw_test_data.planned = matched.front[2].to!int;
+            int planned = matched.front[2].to!int;
+            if (verbose) { writeln("1..", planned ); }
+            raw_test_data.planned = planned;
         } else if (auto matched = line.match(ok)) {
-            debug writeln("OK ", matched);
+            tests_ran++;
+            if (verbose) { writeln("ok ", tests_ran, " ",matched.front[2]); }
             raw_test_data.passed++;
         } else if (auto matched = line.match(not_ok)) {
-            debug writeln("NOT OK ", matched);
+            tests_ran++;
+            if (verbose) { writeln("not ok ", tests_ran, " ", matched.front[2]); }
             raw_test_data.failed++;
         }
         // TODO later
@@ -110,6 +121,6 @@ TestResults run_test(string test, bool verbose = false, bool do_debug = false) {
     if (raw_test_data.failed + raw_test_data.passed == raw_test_data.planned) {
         raw_test_data.done_testing = true;
     }
-    writeln(test, raw_test_data);
+    if (do_debug) { writeln(test, raw_test_data); }
     return raw_test_data;
 }
