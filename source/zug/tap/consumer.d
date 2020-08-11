@@ -65,16 +65,15 @@ struct TestResults {
 }
 
 TestResults run_test(string test, bool verbose = false, bool do_debug = false) {
-    import std.stdio : writeln, writefln;
+    import std.stdio : writeln, write;
     import std.process : pipeProcess, Redirect, wait;
     import std.regex : ctRegex, match;
     import std.uni : toLower;
     import std.conv: to;
 
     TestResults raw_test_data;
-
-    if (verbose) { writeln("Running ", test); }
-
+    write(test, " running now ... ");
+    if (verbose) { writeln(""); }
     auto processPipe = pipeProcess(["/usr/bin/dub", "--single", test],
             Redirect.stdout | Redirect.stderr);
     wait(processPipe.pid);
@@ -118,9 +117,21 @@ TestResults run_test(string test, bool verbose = false, bool do_debug = false) {
         // }
     }
 
+
     if (raw_test_data.failed + raw_test_data.passed == raw_test_data.planned) {
         raw_test_data.done_testing = true;
     }
+    if (!verbose) {
+        if (raw_test_data.failed > 0) {
+            writeln(
+                "Failed ", raw_test_data.failed, "/", 
+                raw_test_data.planned > 0 ? raw_test_data.planned : raw_test_data.passed + raw_test_data.failed 
+            );
+        } else {
+            writeln("ok");
+        }
+    }
+
     if (do_debug) { writeln(test, raw_test_data); }
     return raw_test_data;
 }
