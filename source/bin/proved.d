@@ -63,7 +63,8 @@ void main(string[] args) {
     int number_of_test_files;
     int number_of_tests;
     bool success = true;
-
+    writeln("\nTest Summary Report");
+    writeln("-------------------");
     foreach (string test_file; raw_test_data.keys) {
         auto test_data = raw_test_data[test_file];
         string test_info = format!"%-30s  passed: %d, failed: %d"(test_file, test_data.passed, test_data.failed);
@@ -78,7 +79,6 @@ void main(string[] args) {
             success = false;
         }
     }
-    
     writeln("Files=", number_of_test_files, ", Tests:", number_of_tests, " , ", sw.peek.total!"msecs", " msecs" );
     if (success == true) {
         writeln("Result: PASS");
