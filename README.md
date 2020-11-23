@@ -8,6 +8,29 @@ alpha
 
 ## SYNOPSIS
 
+zug-tap can be used either in a `unitest` block or using separate test files.
+
+### using builtin "proved"
+build "proved" with
+```
+dub build :proved
+```
+then copy `proved` somewhere in your path and run it
+```
+proved
+```
+
+Options for `proved`
+ - v|verbose: more details
+ - d|debug: a lot more details
+ - t|test_folder: under which folder are the test files kept
+
+For example:
+`$ proved -v -t ./t`
+
+### In "unittest" block, using an external consumer, for example tappy
+```
+unittest {
     import std.file;
     import std.process;
     import zug.tap;
@@ -38,9 +61,12 @@ alpha
     // not calling report(), let tappy do the reporting
     // tap.verbose(true);
     // tap.report();
+}
+```
 
-or without a consumer
-
+### In a "unittest block", without a consumer
+```
+{
     auto tap = Tap("second unittest block");
     tap.verbose(true);
     tap.ok(true, "should pass");
@@ -59,10 +85,15 @@ or without a consumer
     writeln(tap.tests_failed); // 1
     writeln(tap.tests_passed); // 4
     tap.report(); // print a summary, not parseable by a tap reporter
+}
+```
+
+### Using "prove" from CPAN
+
+see under examples/run_with_Perl5_prove/
 
 ## WHAT WORKS SO FAR
-
- - ok(true, "some message")
+ - ok( some == other, "some message")
  - report(): prints a summary to STDOUT
  - skip("message"): skipping tests with message
  - resume("message"): stop skipping tests
@@ -70,39 +101,30 @@ or without a consumer
  - note(): messages which don't interfere with parsers and are shown only when **verbose** is true
  - piping to an external consumer (tested with tappy)
  - running tests with prove from Perl 5 ( https://perldoc.perl.org/prove.html ): see ./examples/run_with_Perl5_prove
+ - running tests with the build-in `proved` consumer
+ - plan, either specified at the beginning, in which case the tests will count as failed if not enough or too many tests were ran, or computed at the end when running done_testing(), in which case there should be no failed tests
 
-
-## TODO
-
- - is(true, true, "true is true") : see if two variables have the same values, if not print what was given and what was expected
- - same(some_object, some_object, "are the same") : see if two values are the same thing (such as pointers to the same address), if not give more details 
+## TODO, maybe
+  - is(true, true, "true is true") : see if two variables have the same values, if not print what was given and what was expected
+ - same(some_object, some_object, "are the same") : see if two values are the same thing (such as pointers to the same address), if not give more details
  - isa(...): check type or parent of type
  - is_deeply(...) : check if two datastructures have the same values
  - bail_out()
  - todo()
  - explain() : dump data structure
  - ... aiming at a similar API like Test::More has
- - test with established TAP consumers
  - write .tap files
-
-TODO tests: 
- - plan exists and result is based on passed tests matching planned tests
- - plan does not exist and final result is based on failed tests being equal to 0 
-
-TODO code: 
+ - run the test files in parallel
+TODO code:
  - get test final report as a struct
  - get test final report as json/csv
 
-TODO think about it: 
- - do something like prove from perl 
- - how would I do standalone tests that do not get compiled in the production version but can be executed when running "dub test" ? 
-    Maybe have the tests in a separate source/t/ folder and be imported in a unittest block in the library file ?
 
-## WHY 
+## WHY
 
 I have no strong opinion about what is the right way to add tests and
-I have used "unittest" blocks and have been mostly satisfied with the 
-result. 
+I have used "unittest" blocks and have been mostly satisfied with the
+result.
 
 What I felt was missing was a visual feedback, the ability to continue
 to run the tests even if one of them fails and summaries about how many
@@ -117,18 +139,18 @@ programmers write a lot of boilerplate anyway so testing gets hard and automatic
 tests end up either taking a lot of time or get abandoned because "it is too
 expensive".
 
-The tests should be easy to write and easy to read, without boilerplate. The 
-ideal experience would be to instantiate a test object, then write code as if 
+The tests should be easy to write and easy to read, without boilerplate. The
+ideal experience would be to instantiate a test object, then write code as if
 you're using your library and add "t.ok(...)" or "t.is(...)" from place to place
 to check the results are what you expect.
 
-## HOWTO 
+## HOWTO
 
 ### How to write tests
 
 look in the "examples" folder or in the unittest blocks in the code
 
-### How to build the consumer 
+### How to build the consumer
 
 dub build :proved
 
