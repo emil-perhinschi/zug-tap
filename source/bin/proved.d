@@ -33,12 +33,9 @@ void main(string[] args) {
 
     if (do_debug) { verbose = true; }
 
-    auto files = read_dir(tests_folder, verbose, do_debug);
+    auto files = read_dir(tests_folder, verbose, do_debug).sort();
 
     if (do_debug) { writeln("files ", files.sort()); }
-    auto test_files = read_test_files(tests_folder);
-
-    if (do_debug) { debug writeln("found tests ", test_files); }
 /*
 // one way to do benchmarks
     void do_benchmark() {
@@ -53,6 +50,7 @@ void main(string[] args) {
 */
     auto sw = StopWatch(AutoStart.no);
     sw.start();
+    debug writeln(files);
     foreach (string test; files) {
         raw_test_data[test] = run_test(test, verbose, do_debug);
     }
@@ -65,7 +63,7 @@ void main(string[] args) {
     bool success = true;
     writeln("\nTest Summary Report");
     writeln("-------------------");
-    foreach (string test_file; raw_test_data.keys) {
+    foreach (string test_file; raw_test_data.keys.sort) {
         auto test_data = raw_test_data[test_file];
         string test_info = format!"%-30s  passed: %d, failed: %d"(test_file, test_data.passed, test_data.failed);
         writeln(test_info);
