@@ -10,6 +10,7 @@ string[] read_dir(string source_dir, bool verbose = false, bool do_debug = false
     import std.path : baseName;
     import std.string : indexOf;
     import std.regex : match;
+    import std.algorithm: sort;
 
     string[] files;
 
@@ -38,23 +39,7 @@ string[] read_dir(string source_dir, bool verbose = false, bool do_debug = false
         }
     }
 
-    return files;
-}
-
-string[] read_test_files(string test_dir, bool verbose = false, bool do_debug = false) {
-    import std.stdio : writeln;
-    import std.file : dirEntries, SpanMode;
-    import std.algorithm : sort;
-    import std.array : array;
-
-    // TODO: check dir exists, etc.
-
-    auto files = dirEntries(test_dir, "*.d", SpanMode.shallow);
-    auto file_paths = array(files);
-
-    if (do_debug) { writeln("file paths ", file_paths); }
-
-    return ["abc"];
+    return files.sort.array;
 }
 
 struct TestResults {
