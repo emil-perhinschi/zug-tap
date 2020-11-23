@@ -2,7 +2,7 @@ import zug.tap.consumer;
 
 
 void main(string[] args) {
-    import std.stdio : writeln, write;
+    import std.stdio : writeln, write, stderr;
     import std.array: array;
     import std.algorithm : sort;
     import std.algorithm.iteration: reduce, map;
@@ -11,6 +11,7 @@ void main(string[] args) {
     import std.conv: to;
     import std.datetime.stopwatch;
     import std.algorithm.comparison : max;
+    import std.file: isDir, exists;
 
     string tests_folder = "t";
     bool verbose = false;
@@ -26,13 +27,17 @@ void main(string[] args) {
             "h|help", &help);
 
     if (help) {
-        import core.stdc.stdlib : exit;
+        import core.stdc.stdlib: exit;
         writeln("Help is comming soon");
         exit(0);
     }
 
     if (do_debug) { verbose = true; }
-
+    if (!tests_folder.exists || !tests_folder.isDir) {
+        import core.stdc.stdlib: exit;
+        stderr.writeln(format!"Error: tests folder '%s' not found"(tests_folder));
+        exit(1);
+    }
     auto files = read_dir(tests_folder, verbose, do_debug).sort();
 
     if (do_debug) { writeln("files ", files.sort()); }
@@ -50,7 +55,6 @@ void main(string[] args) {
 */
     auto sw = StopWatch(AutoStart.no);
     sw.start();
-    debug writeln(files);
     foreach (string test; files) {
         raw_test_data[test] = run_test(test, verbose, do_debug);
     }
