@@ -4,7 +4,7 @@
 	],
 	"copyright": "Copyright © 2019, Emil Nicolaie Perhinschi",
 	"description": "example how to run zug-tap",
-	"license": "proprietary",
+	"license": "BSL-1.0",
 	"name": "dubtest",
 	"targetType": "library",
 	"subPackages": [

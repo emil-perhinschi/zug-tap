@@ -11,9 +11,7 @@ One way to do it is to create a subPackage in the project configuration file, na
         "authors": [
             "Emil Nicolaie Perhinschi"
         ],
-        "copyright": "Copyright © 2019, Emil Nicolaie Perhinschi",
         "description": "example how to run zug-tap",
-        "license": "proprietary",
         "name": "dubtest",
         "targetType": "library",
         "subPackages": [
