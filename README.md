@@ -8,7 +8,7 @@ alpha
 
 ## SYNOPSIS
 
-zug-tap can be used either in a `unitest` block or using separate test files.
+zug-tap can be used either in an `unitest` block or using separate test files.
 
 ### using builtin "proved"
 build "proved" with
@@ -101,7 +101,7 @@ see under examples/run_with_Perl5_prove/
  - note(): messages which don't interfere with parsers and are shown only when **verbose** is true
  - piping to an external consumer (tested with tappy)
  - running tests with prove from Perl 5 ( https://perldoc.perl.org/prove.html ): see ./examples/run_with_Perl5_prove
- - running tests with the build-in `proved` consumer
+ - running tests with the builtin `proved` consumer
  - plan, either specified at the beginning, in which case the tests will count as failed if not enough or too many tests were ran, or computed at the end when running done_testing(), in which case there should be no failed tests
 
 ## TODO, maybe
