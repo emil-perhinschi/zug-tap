@@ -54,6 +54,14 @@ struct Tap {
     }
 
 
+    void enable_debugging() { 
+        this.debug_enabled = true;
+    }
+
+    void disable_debugging() {
+        this.debug_enabled = false;
+    }
+
     void enable_consumer() {
         this.use_consumer = true;
     }
