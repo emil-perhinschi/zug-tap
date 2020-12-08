@@ -43,6 +43,7 @@ struct Tap {
     // skip tests and add them to tests_skipped until true
     private bool skipping = false;
     private int tests_skipped;
+    private bool testing_done = false;
 
     this(string test_name) {
         this.test_name = test_name;
@@ -163,12 +164,19 @@ struct Tap {
         }
 
         if (this.have_plan) {
-            return this.tests_failed == 0 && this.tests_count == this.tests_planned;
+            if ( this.tests_failed == 0 && this.tests_count == this.tests_planned ) {
+                this.write("1.." ~ to!string(this.tests_count));
+                this.testing_done = true;
+                return true;
+            }
         } else {
             this.write("1.." ~ to!string(this.tests_count));
-            return this.tests_failed == 0;
+            if (this.tests_failed == 0) {
+                this.testing_done = true;
+                return true;
+            }
         }
-
+        return false;
     }
 
     /**
@@ -188,6 +196,9 @@ struct Tap {
                 "; skipped:", to!string(this.tests_skipped),
                 "\n\n");
         // dfmt on
+        if (this.testing_done != true) {
+           this.warn("No plan and done_testing not called, something went wrong ... "); 
+        }
     }
 
     /**
