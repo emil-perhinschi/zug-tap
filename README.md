@@ -162,3 +162,6 @@ Perl's Test::More https://perldoc.perl.org/Test/More.html
 
 https://dlang.org/blog/2017/10/20/unit-testing-in-action/
 
+## NOTES
+
+some of the tests under t/ are expected to fail

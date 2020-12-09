@@ -299,6 +299,37 @@ struct Tap {
     //     this.ok(subtest_result, label);
     //     return subtest_result;
     // }
+
+     /**
+        prints "ok" or "not ok" depending if the delegate passed in throws an exception or not
+
+        Params:
+            test = delegate, should return a boolean
+            message = string, optional
+    */
+  
+}
+
+bool it_throws(T)(void delegate() test ) {
+    bool it_throws = false;
+
+    /*
+        imbricating try/catch to avoid
+        `Error: catch at ... hides catch at ...`
+    */
+    try {
+        try {
+            test();
+        } catch (T e) {
+            it_throws = true;
+        }
+    } catch (Exception e) { // catch everything
+        // maybe we passed Exception
+        static if (is(T == Exception)) {
+            it_throws = true;
+        }
+    }
+    return it_throws;
 }
 
 unittest {
