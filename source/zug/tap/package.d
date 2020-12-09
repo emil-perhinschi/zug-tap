@@ -197,7 +197,7 @@ struct Tap {
                 "\n\n");
         // dfmt on
         if (this.testing_done != true) {
-           this.warn("No plan and done_testing not called, something went wrong ... "); 
+            this.write("No plan and done_testing not called, something went wrong ... "); 
         }
     }
 
