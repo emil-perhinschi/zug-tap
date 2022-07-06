@@ -59,7 +59,7 @@ TestResults run_test(string test, bool verbose = false, bool do_debug = false) {
     TestResults raw_test_data;
     write(test, " running now ... ");
     if (verbose) { writeln(""); }
-    auto processPipe = pipeProcess(["/usr/bin/dub", "--single", test],
+    auto processPipe = pipeProcess(["/usr/bin/env","dub", "--single", test],
             Redirect.stdout | Redirect.stderr);
     wait(processPipe.pid);
 

@@ -28,7 +28,15 @@ void main(string[] args) {
 
     if (help) {
         import core.stdc.stdlib: exit;
-        writeln("Help is comming soon");
+        writeln(`
+Usage: proved -t /home/user/folder_with_zug-tap_test_files/
+
+Arguments: 
+  -t, --test_folder: where are the test files that I need to execute
+  -v, --verbose: tests print more information
+  -d, --debug: debug statements are printed
+  -h, --help: print this
+        `);
         exit(0);
     }
 

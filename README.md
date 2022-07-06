@@ -6,6 +6,10 @@ TAP (Test Anything Protocol) for D
 
 alpha
 
+I tested only on Linux
+
+I don't expect it to work on other operating systems: for example I rely on "/usr/bin/env" being available 
+
 ## SYNOPSIS
 
 zug-tap can be used either in an `unitest` block or using separate test files.
