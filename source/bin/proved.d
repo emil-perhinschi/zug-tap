@@ -33,7 +33,7 @@ Usage: proved -t /home/user/folder_with_zug-tap_test_files/
 
 Arguments: 
   -t, --test_folder: where are the test files that I need to execute
-  -v, --verbose: tests print more information
+  -v, --verbose: tests print more information; can be overriden from within the test file
   -d, --debug: debug statements are printed
   -h, --help: print this
         `);

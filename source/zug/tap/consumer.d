@@ -57,7 +57,7 @@ TestResults run_test(string test, bool verbose = false, bool do_debug = false) {
     import std.conv: to;
 
     TestResults raw_test_data;
-    write(test, " running now ... ");
+    writeln(test, " running now ... ");
     if (verbose) { writeln(""); }
     auto processPipe = pipeProcess(["/usr/bin/env","dub", "--single", test],
             Redirect.stdout | Redirect.stderr);
@@ -68,8 +68,8 @@ TestResults run_test(string test, bool verbose = false, bool do_debug = false) {
     auto plan = ctRegex!(`^\s*(\d+)\.\.(\d+)\s*`, "i");
     auto ok = ctRegex!(`^\s*ok\s(\d+)\s+(.*)`); 
     auto not_ok = ctRegex!(`^\s*not ok\s(\d+)\s+(.*)`);
-    auto diagnostic = ctRegex!(`^\s*#diagnostic:`);
-    auto note = ctRegex!(`^\s*#note:`);
+    auto diagnostic = ctRegex!(`^\s*#diagnostic:`, "i");
+    auto note = ctRegex!(`^\s*#note:`, "i");
     auto comment = ctRegex!(`^\s*#(.*)`);
 
     int tests_ran = 0;
@@ -86,20 +86,13 @@ TestResults run_test(string test, bool verbose = false, bool do_debug = false) {
             tests_ran++;
             if (verbose) { writeln("not ok ", tests_ran, " ", matched.front[2]); }
             raw_test_data.failed++;
+        } else if (auto matched = line.match(note)) {
+            if (verbose) { writeln(line); }
+        }else if (auto matched = line.match(diagnostic)) {
+            writeln(line);
+        }else if (auto matched = line.match(comment)) {
+            writeln(line);
         }
-        // TODO later
-        // } else if (auto matched = line.match(diagnostic)) {
-        //     debug writeln("+++++++ ", matched);
-        //     debug writeln("DIAGNOSTIC: ", line);
-        // } else if (auto matched = line.match(note)) {
-        //     debug writeln("+++++++ ", matched);
-        //     debug writeln("NOTE: ", line);
-        // } else if (auto matched = line.match(comment)) {
-        //     debug writeln("+++++++ ", matched);
-        //     debug writeln("COMMENT: ", line);
-        // } else {
-        //     debug writeln("DON'T KNOW: ", line);
-        // }
     }
 
 
