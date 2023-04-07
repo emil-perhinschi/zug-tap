@@ -109,7 +109,7 @@ see under examples/run_with_Perl5_prove/
  - plan, either specified at the beginning, in which case the tests will count as failed if not enough or too many tests were ran, or computed at the end when running done_testing(), in which case there should be no failed tests
 
 ## TODO, maybe
-  - is(true, true, "true is true") : see if two variables have the same values, if not print what was given and what was expected
+ - is(true, true, "true is true") : see if two variables have the same values, if not print what was given and what was expected
  - same(some_object, some_object, "are the same") : see if two values are the same thing (such as pointers to the same address), if not give more details
  - isa(...): check type or parent of type
  - is_deeply(...) : check if two datastructures have the same values
