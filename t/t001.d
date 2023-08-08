@@ -1,7 +1,6 @@
 #!/usr/bin/env dub
 /+ dub.json: { "name": "t001", "dependencies": { "zug-tap": { "path": "../" } } } +/
 
-
 void main() {
     import zug.tap;
 
